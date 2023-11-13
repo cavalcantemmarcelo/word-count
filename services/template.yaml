@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  wordCounter
+
+  Sample SAM Template for wordCounter
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  wordCounterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: world-counter-service/
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      Architectures:
+        - x86_64
+      Events:
+        wordCounter:
+          Type: Api
+          Properties:
+            Path: v1/word-counter
+            Method: post
+            RestApiId:
+              Fn::ImportValue: !Sub "${ServerlessRestApi}-RestApiId"
+            Auth:
+              Authorizers:
+                - NONE
+            Cors:
+              AllowMethods: "'POST'"
+              AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              AllowOrigin: "'*'"
+              MaxAge: "'600'"
+
+Outputs:
+  wordCounterApi:
+    Description: "API Gateway endpoint URL for Prod stage for function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  wordCounterFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt wordCounterFunction.Arn
+  wordCounterFunctionIamRole:
+    Description: "Implicit IAM Role created for function"
+    Value: !GetAtt wordCounterFunctionRole.Arn
