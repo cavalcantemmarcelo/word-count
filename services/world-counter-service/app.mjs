@@ -332,10 +332,19 @@ const vocabulary = {
 };
 
 export const lambdaHandler = async (event) => {
-  const text = JSON.stringify(event)
-    .toLowerCase()
-    .replace(/"|body/, "")
-    .split(" ");
+  const extractWords = (eventObj) => {
+    if (eventObj) {
+      const words = eventObj.body.match(/\b\w+\b/g);
+      return words || [];
+    } else {
+      return [];
+    }
+  };
+
+  console.log(event);
+
+  const text = extractWords(event);
+
   const result = {
     noun: 0,
     verb: 0,
@@ -349,12 +358,14 @@ export const lambdaHandler = async (event) => {
     numeral: 0,
   };
 
-  text.forEach((word) => {
-    Object.keys(vocabulary).forEach((type) => {
+  text.map((word) => {
+    Object.keys(vocabulary).map((type) => {
       if (vocabulary[type].includes(word)) {
         result[type]++;
       }
+      return null;
     });
+    return null;
   });
 
   return {
